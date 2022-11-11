@@ -115,7 +115,8 @@ for i in range(3):
 
 #e = float(input('Enter tolerable error: '))
 e = 0.0001
-
+def concat(a, b):
+    return eval(f"{a}{b}")
 
 
 def multiplys(v,y_bus):
@@ -130,38 +131,62 @@ condition=True
 
 
 ########################### Functions for creating Jacobian Matrix ###################################
-def J_1(P,d_angle,k,n):
-    if n != k:
-        J1[k,n] = V[k]*Y[k,n]*V[n]*np.sin(d_angle[k]-d_angle[n]-theta[k,n])
-    else:
-        A_j1 = Sum(Y[k,n]*V[n]*np.sin(d_angle[k]-d_angle[n]-theta[k,n])) from n=1 to N, n!=k
-        J1[k,k] = -1*V[k]*sum(A_j1)
-    return 
+def J_1_diff(k,n):
+    J1 = V_mag[2]*Y_mag[23]*V_mag[3]*np.sin(V_phase[2]-V_phase[3]-Y_phase[23])
+    return J_1
 
 
-def J_2(P,V,k,n):
-    if n != k:
-        J2[k,n] = V[k]*Y[k,n]*np.cos(d_angle[k]-d_angle[n]-theta[k,n])
-    else:
-        A_j2 = Sum(Y[k,n]*V[n]*np.cos(d_angle[k]-d_angle[n]-theta[k,n])) from n=1 to N
-        J2[k,k] = V[k]*Y[k,k]*np.cos(theta[k,k])+ sum(A_j2)
-    return
+J_1_diff(P[0],V_phase[2],k,n),J_1_diff(P[0],V_phase[3],k,n) k=2 n=3
 
-def J_3(Q,d_angle,k,n):
-    if n != k:
-        J3[k,n] = -1*V[k]*Y[k,n]*V[n]*np.cos(d_angle[k]-d_angle[n]-theta[k,n])
-    else:
-        A_j3 = Sum(Y[k,n]*V[n]*np.cos(d_angle[k]-d_angle[n]-theta[k,n])) from n=1 to N, n!=k
-        J3[k,k] = V[k]*sum(A_j3)
-    return
 
-def J_4(Q,V,k,n):
-    if n != k:
-        J4[k,n] = V[k]*Y[k,n]*np.sin(d_angle[k]-d_angle[n]-theta[k,n])
-    else:
-        A_j4 = Sum(Y[k,n]*V[n]*np.sin(d_angle[k]-d_angle[n]-theta[k,n])) from n=1 to N
-        J4[k,k] = -1*V[k]*Y[k,k]*np.sin(theta[k,k])+sum() 
-    return
+
+
+def J_1_same(P,V_phase,k,n):
+    if k > n:
+        for i in range(1, 5):
+            A_j1 += Sum(Y_mag[kn]*V_mag[n]*np.sin(V_phase[k]-V_phase[n]-Y_phase[kn]))
+            J1 = -1*V[k]*sum(A_j1)
+    else if k < n:
+    return J_1
+
+
+
+
+def J_2_diff(P,V,k,n):
+    J2[k,n] = V[k]*Y[k,n]*np.cos(V_phase[k]-V_phase[n]-Y_phase[k,n])
+    return J_2
+
+def J_2_same(P,V,k,n):
+    A_j2 = Sum(Y[k,n]*V[n]*np.cos(V_phase[k]-V_phase[n]-Y_phase[k,n])) from n=1 to N
+    J2[k,k] = V[k]*Y[k,k]*np.cos(Y_phase[k,k])+ sum(A_j2)
+    return J_2
+
+
+
+
+
+
+def J_3_diff(Q,V_phase,k,n):
+    J3[k,n] = -1*V[k]*Y[k,n]*V[n]*np.cos(V_phase[k]-V_phase[n]-Y_phase[k,n])
+    return J_3
+
+def J_3_same(Q,V_phase,k,n):
+    A_j3 = Sum(Y[k,n]*V[n]*np.cos(V_phase[k]-V_phase[n]-Y_phase[k,n])) from n=1 to N, n!=k
+    J3[k,k] = V[k]*sum(A_j3)
+    return J_3
+
+
+
+
+
+def J_4_diff(Q,V,k,n):
+    J4[k,n] = V[k]*Y[k,n]*np.sin(V_phase[k]-V_phase[n]-Y_phase[k,n])
+    return J_4
+
+def J_4_same(Q,V,k,n):
+    A_j4 = Sum(Y[k,n]*V[n]*np.sin(V_phase[k]-V_phase[n]-Y_phase[k,n])) from n=1 to N
+    J4[k,k] = -1*V[k]*Y[k,k]*np.sin(Y_phase[k,k])+sum() 
+    return J_4
 
 
 ##########################################################################################################
@@ -203,12 +228,12 @@ while condition:
 
 
 
-    Jacobian_Matrix = ([J_1(P[0],V_phase[1],k,n),J_1(P[0],V_phase[2],k,n),J_1(P[0],V_phase[3],k,n),J_2(P[0],V_mag[1],k,n),J_2(P[0],V_mag[2],k,n),J_2(P[0],V_mag[3],k,n)],..
-    [J_1(P[1],V_phase[1],k,n),J_1(P[1],V_phase[2],k,n),J_1(P[1],V_phase[3],k,n),J_2(P[1],V_mag[1],k,n),J_2(P[1],V_mag[2],k,n),J_2(P[1],V_mag[3],k,n)],..
-    [J_1(P[2],V_phase[1],k,n),J_1(P[2],V_phase[2],k,n),J_1(P[2],V_phase[3],k,n),J_2(P[2],V_mag[1],k,n),J_2(P[2],V_mag[2],k,n),J_2(P[2],V_mag[3],k,n)],..
-    [J_3(Q[0],V_phase[1],k,n),J_3(Q[0],V_phase[2],k,n),J_3(Q[0],V_phase[3],k,n),J_4(Q[0],V_mag[1],k,n),J_4(Q[0],V_mag[2],k,n),J_4(Q[0],V_mag[3],k,n)],..
-    [J_3(Q[1],V_phase[1],k,n),J_3(Q[1],V_phase[2],k,n),J_3(Q[1],V_phase[3],k,n),J_4(Q[1],V_mag[1],k,n),J_4(Q[1],V_mag[2],k,n),J_4(Q[1],V_mag[3],k,n)],..
-    [J_3(Q[2],V_phase[1],k,n),J_3(Q[2],V_phase[2],k,n),J_3(Q[2],V_phase[3],k,n),J_4(Q[2],V_mag[1],k,n),J_4(Q[2],V_mag[2],k,n),J_4(Q[2],V_mag[3],k,n)])
+    Jacobian_Matrix = ([J_1_same(P[0],V_phase[1],2,2),J_1_diff(P[0],V_phase[2],k,n),J_1_diff(P[0],V_phase[3],k,n),J_2_same(P[0],V_mag[1],2,2),J_2_diff(P[0],V_mag[2],k,n),J_2_diff(P[0],V_mag[3],k,n)],..
+    [J_1_diff(P[1],V_phase[1],k,n),J_1_same(P[1],V_phase[2],3,3),J_1_diff(P[1],V_phase[3],k,n),J_2_diff(P[1],V_mag[1],k,n),J_2_same(P[1],V_mag[2]3,3),J_2_diff(P[1],V_mag[3],k,n)],..
+    [J_1_diff(P[2],V_phase[1],k,n),J_1_diff(P[2],V_phase[2],k,n),J_1_same(P[2],V_phase[3],4,4),J_2_diff(P[2],V_mag[1],k,n),J_2_diff(P[2],V_mag[2],k,n),J_2_same(P[2],V_mag[3],4,4)],..
+    [J_3_same(Q[0],V_phase[1],2,2),J_3_diff(Q[0],V_phase[2],k,n),J_3_diff(Q[0],V_phase[3],k,n),J_4_same(Q[0],V_mag[1],2,2),J_4_diff(Q[0],V_mag[2],k,n),J_4_diff(Q[0],V_mag[3],k,n)],..
+    [J_3_diff(Q[1],V_phase[1],k,n),J_3_same(Q[1],V_phase[2],3,3),J_3_diff(Q[1],V_phase[3],k,n),J_4_diff(Q[1],V_mag[1],k,n),J_4_same(Q[1],V_mag[2],3,3),J_4_diff(Q[1],V_mag[3],k,n)],..
+    [J_3_diff(Q[2],V_phase[1],k,n),J_3_diff(Q[2],V_phase[2],k,n),J_3_same(Q[2],V_phase[3],4,4),J_4_diff(Q[2],V_mag[1],k,n),J_4_diff(Q[2],V_mag[2],k,n),J_4_same(Q[2],V_mag[3],4,4)])
     
 
 
@@ -289,23 +314,23 @@ while condition:
 
 # # # Jacobian Matrix Formulas
 # # # n != k
-# # J1[kn] = V[k]*Y[kn]*V[n]*np.sin(d_angle[k]-d_angle[n]-theta[kn])
+# # J1[kn] = V[k]*Y[kn]*V[n]*np.sin(V_phase[k]-V_phase[n]-Y_phase[kn])
 
-# # J2[kn] = V[k]*Y[kn]*np.cos(d_angle[k]-d_angle[n]-theta[kn])
+# # J2[kn] = V[k]*Y[kn]*np.cos(V_phase[k]-V_phase[n]-Y_phase[kn])
 
-# # J3[kn] = -1*V[k]*Y[kn]*V[n]*np.cos(d_angle[k]-d_angle[n]-theta[kn])
+# # J3[kn] = -1*V[k]*Y[kn]*V[n]*np.cos(V_phase[k]-V_phase[n]-Y_phase[kn])
 
-# # J4[kn] = V[k]*Y[kn]*np.sin(d_angle[k]-d_angle[n]-theta[kn])
+# # J4[kn] = V[k]*Y[kn]*np.sin(V_phase[k]-V_phase[n]-Y_phase[kn])
 
 # # # n = k
-# # A_j1 = Sum(Y[kn]*V[n]*np.sin(d_angle[k]-d_angle[n]-theta[kn])) from n=1 to N, n!=k
+# # A_j1 = Sum(Y[kn]*V[n]*np.sin(V_phase[k]-V_phase[n]-Y_phase[kn])) from n=1 to N, n!=k
 # # J1[kk] = -1*V[k]*sum(A_j1)
 
-# # A_j2 = Sum(Y[kn]*V[n]*np.cos(d_angle[k]-d_angle[n]-theta[kn])) from n=1 to N
-# # J2[kk] = V[k]*Y[kk]*np.cos(theta[kk])+ sum(A_j2)
+# # A_j2 = Sum(Y[kn]*V[n]*np.cos(V_phase[k]-V_phase[n]-Y_phase[kn])) from n=1 to N
+# # J2[kk] = V[k]*Y[kk]*np.cos(Y_phase[kk])+ sum(A_j2)
 
-# # A_j3 = Sum(Y[kn]*V[n]*np.cos(d_angle[k]-d_angle[n]-theta[kn])) from n=1 to N, n!=k
+# # A_j3 = Sum(Y[kn]*V[n]*np.cos(V_phase[k]-V_phase[n]-Y_phase[kn])) from n=1 to N, n!=k
 # # J3[kk] = V[k]*sum(A_j3)
 
-# A_j4 = Sum(Y[kn]*V[n]*np.sin(d_angle[k]-d_angle[n]-theta[kn])) from n=1 to N
-# J4[kk] = -1*V[k]*Y[kk]*np.sin(theta[kk])+sum() 
+# A_j4 = Sum(Y[kn]*V[n]*np.sin(V_phase[k]-V_phase[n]-Y_phase[kn])) from n=1 to N
+# J4[kk] = -1*V[k]*Y[kk]*np.sin(Y_phase[kk])+sum() 
